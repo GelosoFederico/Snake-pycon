@@ -77,6 +77,31 @@ def get_board_size(board):
         'height': board['height']
     }
 
+def distance_between(a, b):
+    return (a['x']-b['x'])**2 + (a['y']-b['y'])**2
+
+def weight_for_food(head, possible_moves, food_data):
+    weighted_possible_moves = []
+    for move in possible_moves:
+        move_relative_movement = relative_movement[move]
+        new_pos = {
+            "x": head['x'] + move_relative_movement['x'],
+            "y": head['y'] + move_relative_movement['y'],
+        }
+        weight = 0
+        for food in food_data:
+            weight += distance_between(new_pos, food)
+        weighted_possible_moves.append({'move': move, 'weight': weight})
+
+    weighted_possible_moves = sorted(weighted_possible_moves, key= lambda x: x['weight'])
+    return [x['move'] for x in weighted_possible_moves]
+    
+        
+
+
+
+
+
 def choose_move(data: dict) -> str:
     """
     data: Dictionary of all Game Board data as received from the Battlesnake Engine.
@@ -105,10 +130,12 @@ def choose_move(data: dict) -> str:
     possible_moves = ["up", "down", "left", "right"]
     possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
 
+    possible_moves_weighted = weight_for_food(my_head, possible_moves, data['board']['food'])
+
     # Choose a random direction from the remaining possible_moves to move in, and then return that move
     shout = 'Well I may have a ssssurprise for you'
-    if possible_moves:
-        move = random.choice(possible_moves)
+    if possible_moves_weighted:
+        move = possible_moves_weighted[0]
         shout = "It'ssss over my friend"
     else:
         move = 'up'
