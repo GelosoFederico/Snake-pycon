@@ -46,6 +46,37 @@ def fill_board_with_snakes(board, data_board):
     for point in data_board['hazards']:
         board[point['x']][point['y']] = True
 
+relative_movement = {
+    'up': {'x':0, 'y':1},
+    'down': {'x':0, 'y':-1},
+    'right': {'x':1, 'y':0},
+    'left': {'x':-1, 'y':0},
+}
+
+def in_board_limits(board, where_to):
+    return not (where_to['x'] < 0 or where_to['x'] >= board['width'] \
+        or where_to['y'] < 0 or where_to['y'] >= board['height'])
+
+def remove_immediate_hazards(my_head, board_size, board, possible_moves):
+    new_possible_moves = []
+    for move in possible_moves:
+        move_relative_movement = relative_movement[move]
+        where_to = {
+            "x": my_head['x'] + move_relative_movement['x'],
+            "y": my_head['y'] + move_relative_movement['y'],
+        }
+        if in_board_limits(board_size, where_to) and not board[where_to['x']][where_to['y']]:
+            new_possible_moves.append(move)
+
+
+    return new_possible_moves
+
+def get_board_size(board):
+    return {
+        'width': board['width'],
+        'height': board['height']
+    }
+
 def choose_move(data: dict) -> str:
     """
     data: Dictionary of all Game Board data as received from the Battlesnake Engine.
@@ -62,7 +93,6 @@ def choose_move(data: dict) -> str:
     fill_board_with_snakes(board, data['board'])
         
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
-    my_body = data["you"]["body"]  # A list of x/y coordinate dictionaries like [ {"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0} ]
 
     # TODO: uncomment the lines below so you can see what this data looks like in your output!
     # print(f"~~~ Turn: {data['turn']}  Game Mode: {data['game']['ruleset']['name']} ~~~")
@@ -70,25 +100,20 @@ def choose_move(data: dict) -> str:
     # print(f"My Battlesnakes head this turn is: {my_head}")
     # print(f"My Battlesnakes body this turn is: {my_body}")
 
+    board_size = get_board_size(data['board'])
+
     possible_moves = ["up", "down", "left", "right"]
-
-    # Don't allow your Battlesnake to move back in on it's own neck
-    possible_moves = avoid_my_neck(my_head, my_body, possible_moves)
-
-    # TODO: Using information from 'data', find the edges of the board and don't let your Battlesnake move beyond them
-    # board_height = ?
-    # board_width = ?
-
-    # TODO Using information from 'data', don't let your Battlesnake pick a move that would hit its own body
-
-    # TODO: Using information from 'data', don't let your Battlesnake pick a move that would collide with another Battlesnake
-
-    # TODO: Using information from 'data', make your Battlesnake move towards a piece of food on the board
+    possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
 
     # Choose a random direction from the remaining possible_moves to move in, and then return that move
-    move = random.choice(possible_moves)
-    # TODO: Explore new strategies for picking a move that are better than random
+    shout = 'Well I may have a ssssurprise for you'
+    if possible_moves:
+        move = random.choice(possible_moves)
+        shout = "It'ssss over my friend"
+    else:
+        move = 'up'
+        shout = "Oh lord ssssspare my life"
 
     print(f"{data['game']['id']} MOVE {data['turn']}: {move} picked from all valid options in {possible_moves}")
 
-    return move
+    return move, shout

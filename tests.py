@@ -12,7 +12,7 @@ in the folder where this file exists:
 """
 import unittest
 
-from server_logic import avoid_my_neck, create_empty_board, fill_board_with_snakes
+from server_logic import avoid_my_neck, create_empty_board, fill_board_with_snakes, get_board_size, remove_immediate_hazards
 
 def get_full_test_json():
     return {  "game": {    "id": "game-00fe20da-94ad-11ea-bb37",    "ruleset": {      "name": "standard",      "version": "v.1.2.3"    },    "timeout": 500  },  "turn": 14,  "board": {    "height": 11,    "width": 11,    "food": [      {"x": 5, "y": 5},       {"x": 9, "y": 0},       {"x": 2, "y": 6}    ],    "hazards": [      {"x": 3, "y": 2}    ],    "snakes": [      {        "id": "snake-508e96ac-94ad-11ea-bb37",        "name": "My Snake",        "health": 54,        "body": [          {"x": 0, "y": 0},           {"x": 1, "y": 0},           {"x": 2, "y": 0}        ],        "latency": "111",        "head": {"x": 0, "y": 0},        "length": 3,        "shout": "why are we shouting??",        "squad": ""      },       {        "id": "snake-b67f4906-94ae-11ea-bb37",        "name": "Another Snake",        "health": 16,        "body": [          {"x": 5, "y": 4},           {"x": 5, "y": 3},           {"x": 6, "y": 3},          {"x": 6, "y": 2}        ],        "latency": "222",        "head": {"x": 5, "y": 4},        "length": 4,        "shout": "I'm not really sure...",        "squad": ""      }    ]  },  "you": {    "id": "snake-508e96ac-94ad-11ea-bb37",    "name": "My Snake",    "health": 54,    "body": [      {"x": 0, "y": 0},       {"x": 1, "y": 0},       {"x": 2, "y": 0}    ],    "latency": "111",    "head": {"x": 0, "y": 0},    "length": 3,    "shout": "why are we shouting??",    "squad": ""  }}
@@ -111,6 +111,16 @@ class MoveTest(unittest.TestCase):
         assert board[6][3] == True
         assert board[6][2] == True
         assert board[3][2] == True
+
+    def test_remove_hazards_for_move(self):
+        board = create_empty_board(get_full_test_json()['board'])
+        fill_board_with_snakes(board, get_full_test_json()['board'])
+        head = get_full_test_json()['you']['head']
+        board_size = get_board_size(get_full_test_json()['board'])
+
+        possible_moves = ["up", "down", "left", "right"]
+        possible_moves = remove_immediate_hazards(head, board_size, board, possible_moves)
+        assert set(possible_moves) == set(["up"])
 
 
 if __name__ == "__main__":
