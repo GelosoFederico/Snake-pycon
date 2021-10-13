@@ -94,6 +94,7 @@ def weight_for_food(head, possible_moves, food_data):
         weighted_possible_moves.append({'move': move, 'weight': weight})
 
     weighted_possible_moves = sorted(weighted_possible_moves, key= lambda x: x['weight'])
+    print(weighted_possible_moves)
     return [x['move'] for x in weighted_possible_moves]
     
         
