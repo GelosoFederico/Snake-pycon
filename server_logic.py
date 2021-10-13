@@ -80,6 +80,26 @@ def get_board_size(board):
 def distance_between(a, b):
     return (a['x']-b['x'])**2 + (a['y']-b['y'])**2
 
+def weight_by_sum(new_pos, food_data):
+    weight = 0
+    for food in food_data:
+        distance = distance_between(new_pos, food) 
+        if not distance:
+            # if you can eat... DO IT (yeah it's not optimal I think but whatever)
+            weight -= 10000000
+        weight += distance_between(new_pos, food)
+    return weight
+
+def weight_by_min(new_pos, food_data):
+    weight = 1
+    if food_data:
+        weight = distance_between(new_pos, food_data[0])
+    for food in food_data:
+        distance = distance_between(new_pos, food) 
+        if distance < weight:
+            weight = distance
+    return weight
+
 def weight_for_food(head, possible_moves, food_data):
     weighted_possible_moves = []
     for move in possible_moves:
@@ -88,13 +108,8 @@ def weight_for_food(head, possible_moves, food_data):
             "x": head['x'] + move_relative_movement['x'],
             "y": head['y'] + move_relative_movement['y'],
         }
-        weight = 0
-        for food in food_data:
-            distance = distance_between(new_pos, food) 
-            if not distance:
-                # if you can eat... DO IT (yeah it's not optimal I think but whatever)
-                weight -= 10000000
-            weight += distance_between(new_pos, food)
+        weight = weight_by_min(new_pos, food_data)
+
         weighted_possible_moves.append({'move': move, 'weight': weight})
 
     weighted_possible_moves = sorted(weighted_possible_moves, key= lambda x: x['weight'])
