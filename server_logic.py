@@ -132,6 +132,7 @@ def choose_move(data: dict) -> str:
     possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
 
     possible_moves_weighted = weight_for_food(my_head, possible_moves, data['board']['food'])
+    print(data)
 
     # Choose a random direction from the remaining possible_moves to move in, and then return that move
     shout = 'Well I may have a ssssurprise for you'
