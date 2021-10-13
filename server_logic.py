@@ -39,6 +39,13 @@ def create_empty_board(data_board):
         full_board.append([False] * data_board['height'])
     return full_board
 
+def fill_board_with_snakes(board, data_board):
+    for snake in data_board['snakes']:
+        for point in snake['body']:
+            board[point['x']][point['y']] = True
+    for point in data_board['hazards']:
+        board[point['x']][point['y']] = True
+
 def choose_move(data: dict) -> str:
     """
     data: Dictionary of all Game Board data as received from the Battlesnake Engine.
@@ -52,6 +59,7 @@ def choose_move(data: dict) -> str:
 
     """
     board = create_empty_board(data['board'])
+    fill_board_with_snakes(board, data['board'])
         
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
     my_body = data["you"]["body"]  # A list of x/y coordinate dictionaries like [ {"x": 0, "y": 0}, {"x": 1, "y": 0}, {"x": 2, "y": 0} ]
