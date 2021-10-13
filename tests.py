@@ -119,7 +119,9 @@ class MoveTest(unittest.TestCase):
         board_size = get_board_size(get_full_test_json()['board'])
 
         possible_moves = ["up", "down", "left", "right"]
+
         possible_moves = remove_immediate_hazards(head, board_size, board, possible_moves)
+        
         assert set(possible_moves) == set(["up"])
 
     def test_weight_moves(self):
@@ -127,7 +129,9 @@ class MoveTest(unittest.TestCase):
 
         possible_moves = ["up", "down", "left", "right"]
         food = [{'x': 4, 'y':6}]
+        
         possible_moves = weight_for_food(head, possible_moves, food)
+
         assert possible_moves[0] == 'left'
         assert possible_moves[3] == 'right'
 
