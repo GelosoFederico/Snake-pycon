@@ -138,7 +138,14 @@ def weight_for_food(head, possible_moves, food_data):
     print(weighted_possible_moves)
     return [x['move'] for x in weighted_possible_moves]
     
-        
+def should_get_food_now(data):
+    # We make sure we are the biggest and we are not low on life
+    low_on_life = data['you']['health'] < 60
+    smol_snake = False
+    for snake in data['board']['snakes']:
+        if data['you']['length'] < snake['length']:
+            smol_snake = True
+    return low_on_life or smol_snake
 
 
 
@@ -171,9 +178,14 @@ def choose_move(data: dict) -> str:
 
     possible_moves = ["up", "down", "left", "right"]
     possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
-    possible_moves = remove_next_hazards(my_head, board_size, board, possible_moves)
+    possible_moves_next = remove_next_hazards(my_head, board_size, board, possible_moves)
+    if len(possible_moves_next) == 0:
+        possible_moves_next = possible_moves
 
-    possible_moves_weighted = weight_for_food(my_head, possible_moves, data['board']['food'])
+    if should_get_food_now(data):
+        possible_moves_weighted = weight_for_food(my_head, possible_moves_next, data['board']['food'])
+    else:
+        possible_moves_weighted = weight_for_food(my_head, possible_moves_next, data['board']['food'])
 
     # Choose a random direction from the remaining possible_moves to move in, and then return that move
     shout = 'Well I may have a ssssurprise for you'
