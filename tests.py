@@ -12,7 +12,7 @@ in the folder where this file exists:
 """
 import unittest
 
-from server_logic import avoid_my_neck, create_empty_board, fill_board_with_snakes, get_board_size, remove_immediate_hazards, weight_for_food
+from server_logic import avoid_my_neck, choose_move, create_empty_board, fill_board_with_snakes, get_board_size, remove_immediate_hazards, remove_next_hazards, weight_for_food
 
 def get_full_test_json():
     return {  "game": {    "id": "game-00fe20da-94ad-11ea-bb37",    "ruleset": {      "name": "standard",      "version": "v.1.2.3"    },    "timeout": 500  },  "turn": 14,  "board": {    "height": 11,    "width": 11,    "food": [      {"x": 5, "y": 5},       {"x": 9, "y": 0},       {"x": 2, "y": 6}    ],    "hazards": [      {"x": 3, "y": 2}    ],    "snakes": [      {        "id": "snake-508e96ac-94ad-11ea-bb37",        "name": "My Snake",        "health": 54,        "body": [          {"x": 0, "y": 0},           {"x": 1, "y": 0},           {"x": 2, "y": 0}        ],        "latency": "111",        "head": {"x": 0, "y": 0},        "length": 3,        "shout": "why are we shouting??",        "squad": ""      },       {        "id": "snake-b67f4906-94ae-11ea-bb37",        "name": "Another Snake",        "health": 16,        "body": [          {"x": 5, "y": 4},           {"x": 5, "y": 3},           {"x": 6, "y": 3},          {"x": 6, "y": 2}        ],        "latency": "222",        "head": {"x": 5, "y": 4},        "length": 4,        "shout": "I'm not really sure...",        "squad": ""      }    ]  },  "you": {    "id": "snake-508e96ac-94ad-11ea-bb37",    "name": "My Snake",    "health": 54,    "body": [      {"x": 0, "y": 0},       {"x": 1, "y": 0},       {"x": 2, "y": 0}    ],    "latency": "111",    "head": {"x": 0, "y": 0},    "length": 3,    "shout": "why are we shouting??",    "squad": ""  }}
@@ -135,6 +135,44 @@ class MoveTest(unittest.TestCase):
         assert possible_moves[0] == 'left'
         assert possible_moves[3] == 'right'
 
+    def test_remove_hazards_for_second_move(self):
+        board = create_empty_board(get_full_test_json()['board'])
+        board_things = {
+            'hazards': [],
+            'snakes': [
+                {
+                    "body": [
+                        {"x": 1, "y": 0},
+                        {"x": 2, "y": 0},
+                        {"x": 3, "y": 0}
+                    ],
+                },
+                {
+                    "body": [
+                        {"x": 0, "y": 1},
+                        {"x": 0, "y": 2},
+                        {"x": 0, "y": 3}
+                    ],
+                }
+            ],     
+        }
+        fill_board_with_snakes(board, board_things)
+        head = {"x": 1, "y": 0}
+        board_size = get_board_size(get_full_test_json()['board'])
+
+        possible_moves = ["up", "down", "left", "right"]
+
+        possible_moves = remove_immediate_hazards(head, board_size, board, possible_moves)
+        print(possible_moves)
+        assert set(possible_moves) == set(["up", "left"])
+
+        possible_moves = remove_next_hazards(head, board_size, board, possible_moves)
+        assert set(possible_moves) == set(["up"])
+
+    def test_run_the_whole_thing(self):
+        # Yeah a fantastic unit test
+        move, shout = choose_move(get_full_test_json())
+        assert move == 'up'
 
 if __name__ == "__main__":
     unittest.main()

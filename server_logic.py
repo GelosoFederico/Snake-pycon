@@ -71,6 +71,28 @@ def remove_immediate_hazards(my_head, board_size, board, possible_moves):
 
     return new_possible_moves
 
+def remove_next_hazards(my_head, board_size, board, possible_moves):
+    # TODO The number of next turns should be passed here so this can do every turn with a cache
+    # TODO Also the food positions may be necessary
+    new_possible_moves = []
+    for move in possible_moves:
+        next_possible_moves = ["up", "down", "left", "right"]
+        move_relative_movement = relative_movement[move]
+        new_head = {
+            "x": my_head['x'] + move_relative_movement['x'],
+            "y": my_head['y'] + move_relative_movement['y'],
+        }
+        new_board = get_next_turn_board(new_head, board_size, board)
+        next_possible_moves = remove_immediate_hazards(new_head, board_size, new_board, next_possible_moves)
+        if next_possible_moves:
+            new_possible_moves.append(move)
+    return new_possible_moves
+
+def get_next_turn_board(where_to, board_size, board):
+    # TODO At some point I'll cave in and make this function work correctly
+    return board
+
+
 def get_board_size(board):
     return {
         'width': board['width'],
