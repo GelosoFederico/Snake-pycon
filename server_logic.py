@@ -122,7 +122,7 @@ def weight_by_min(new_pos, food_data):
             weight = distance
     return weight
 
-def weight_for_food(head, possible_moves, food_data):
+def weight_for_food(head, possible_moves, food_data, data):
     weighted_possible_moves = []
     for move in possible_moves:
         move_relative_movement = relative_movement[move]
@@ -130,7 +130,10 @@ def weight_for_food(head, possible_moves, food_data):
             "x": head['x'] + move_relative_movement['x'],
             "y": head['y'] + move_relative_movement['y'],
         }
-        weight = weight_by_min(new_pos, food_data)
+        if should_get_food_now(data):
+            weight = weight_by_min(new_pos, food_data)
+        else:
+            weight = weight_by_sum(new_pos, food_data)
 
         weighted_possible_moves.append({'move': move, 'weight': weight})
 
@@ -182,10 +185,7 @@ def choose_move(data: dict) -> str:
     if len(possible_moves_next) == 0:
         possible_moves_next = possible_moves
 
-    if should_get_food_now(data):
-        possible_moves_weighted = weight_for_food(my_head, possible_moves_next, data['board']['food'])
-    else:
-        possible_moves_weighted = weight_for_food(my_head, possible_moves_next, data['board']['food'])
+    possible_moves_weighted = weight_for_food(my_head, possible_moves_next, data['board']['food'], data)
 
     # Choose a random direction from the remaining possible_moves to move in, and then return that move
     shout = 'Well I may have a ssssurprise for you'

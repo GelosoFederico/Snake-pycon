@@ -130,7 +130,7 @@ class MoveTest(unittest.TestCase):
         possible_moves = ["up", "down", "left", "right"]
         food = [{'x': 4, 'y':6}]
         
-        possible_moves = weight_for_food(head, possible_moves, food)
+        possible_moves = weight_for_food(head, possible_moves, food, get_full_test_json())
 
         assert possible_moves[0] == 'left'
         assert possible_moves[3] == 'right'
