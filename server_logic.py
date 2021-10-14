@@ -171,6 +171,7 @@ def choose_move(data: dict) -> str:
 
     possible_moves = ["up", "down", "left", "right"]
     possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
+    possible_moves = remove_next_hazards(my_head, board_size, board, possible_moves)
 
     possible_moves_weighted = weight_for_food(my_head, possible_moves, data['board']['food'])
 
