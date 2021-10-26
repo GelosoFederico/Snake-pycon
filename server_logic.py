@@ -207,12 +207,14 @@ def choose_move(data: dict) -> str:
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
 
     possible_moves = ["up", "down", "left", "right"]
-    if int(data["you"]['latency']) > 450:
+    latency = int(data["you"]['latency']) if data["you"]['latency'] else 400
+    if latency > 400:
         turns_ahead = 2
-    elif int(data["you"]['latency']) > 200:
+    elif latency > 200:
         turns_ahead = 3
     else:
         turns_ahead = 4
+    print(turns_ahead)
     possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, turns_ahead)
     if len(possible_moves_next) == 0:
         possible_moves_next = possible_moves
