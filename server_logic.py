@@ -1,6 +1,6 @@
 import random
-from typing import List, Dict
-
+from typing import List, Dict, Tuple
+import copy
 """
 This file can be a nice home for your move logic, and to write helper functions.
 
@@ -57,7 +57,7 @@ def in_board_limits(board, where_to):
     return not (where_to['x'] < 0 or where_to['x'] >= board['width'] \
         or where_to['y'] < 0 or where_to['y'] >= board['height'])
 
-def remove_immediate_hazards(my_head, board_size, board, possible_moves):
+def remove_immediate_hazards(my_head, board, full_board_data, possible_moves):
     new_possible_moves = []
     for move in possible_moves:
         move_relative_movement = relative_movement[move]
@@ -65,32 +65,57 @@ def remove_immediate_hazards(my_head, board_size, board, possible_moves):
             "x": my_head['x'] + move_relative_movement['x'],
             "y": my_head['y'] + move_relative_movement['y'],
         }
-        if in_board_limits(board_size, where_to) and not board[where_to['x']][where_to['y']]:
+        if in_board_limits(full_board_data, where_to) and not board[where_to['x']][where_to['y']]:
             new_possible_moves.append(move)
 
 
     return new_possible_moves
 
-def remove_next_hazards(my_head, board_size, board, possible_moves):
+def remove_next_hazards(my_head, board, full_data, possible_moves, turns=1):
     # TODO The number of next turns should be passed here so this can do every turn with a cache
     # TODO Also the food positions may be necessary
+    if turns == 0:
+        return possible_moves
+    possible_moves = remove_immediate_hazards(my_head, board, full_data['board'], possible_moves)
     new_possible_moves = []
     for move in possible_moves:
         next_possible_moves = ["up", "down", "left", "right"]
+        # remove current hazards
+
+        # remove future hazards
         move_relative_movement = relative_movement[move]
         new_head = {
             "x": my_head['x'] + move_relative_movement['x'],
             "y": my_head['y'] + move_relative_movement['y'],
         }
-        new_board = get_next_turn_board(new_head, board_size, board)
-        next_possible_moves = remove_immediate_hazards(new_head, board_size, new_board, next_possible_moves)
+        new_full_data, new_board = get_next_turn_board(new_head, full_data)
+        next_possible_moves = remove_next_hazards(new_head, new_board, new_full_data, next_possible_moves, turns-1)
         if next_possible_moves:
             new_possible_moves.append(move)
     return new_possible_moves
 
-def get_next_turn_board(where_to, board_size, board):
+def move_player_to(new_head: dict, full_data: dict) -> None:
+    for snake in full_data['board']['snakes']:
+        if snake['id'] == full_data['you']['id']:
+            # TODO check if you are eating
+            snake['body'].insert(0, new_head)
+            if new_head in full_data['board']['food']:
+                index = full_data['board']['food'].index(new_head)
+                del full_data['board']['food'][index]
+                snake['length'] += 1
+            else:
+                del snake['body'][-1]
+        #TODO check what other snakes do
+
+
+def get_next_turn_board(new_head:dict, full_data:dict) -> Tuple[dict, dict]:
     # TODO At some point I'll cave in and make this function work correctly
-    return board
+    new_full_data = copy.deepcopy(full_data)
+    move_player_to(new_head, new_full_data)
+    board = create_empty_board(new_full_data['board'])
+    fill_board_with_snakes(board, new_full_data['board'])
+
+    return new_full_data, board 
 
 
 def get_board_size(board):
@@ -178,10 +203,11 @@ def choose_move(data: dict) -> str:
     # print(f"My Battlesnakes body this turn is: {my_body}")
 
     board_size = get_board_size(data['board'])
+    full_board_data = data['board']
 
     possible_moves = ["up", "down", "left", "right"]
-    possible_moves = remove_immediate_hazards(my_head, board_size, board, possible_moves)
-    possible_moves_next = remove_next_hazards(my_head, board_size, board, possible_moves)
+    possible_moves = remove_immediate_hazards(my_head, board, full_board_data, possible_moves)
+    possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, 6)
     if len(possible_moves_next) == 0:
         possible_moves_next = possible_moves
 
