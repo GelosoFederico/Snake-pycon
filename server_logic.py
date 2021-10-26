@@ -210,7 +210,7 @@ def choose_move(data: dict) -> str:
     latency = int(data["you"]['latency']) if data["you"]['latency'] else 400
     if latency > 400:
         turns_ahead = 2
-    elif latency > 200:
+    elif latency > 100:
         turns_ahead = 3
     else:
         turns_ahead = 4
