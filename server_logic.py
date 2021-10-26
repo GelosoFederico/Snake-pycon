@@ -181,7 +181,7 @@ def should_get_food_now(data):
     low_on_life = data['you']['health'] < 50
     smol_snake = False
     for snake in data['board']['snakes']:
-        if data['you']['length'] < snake['length']:
+        if data['you']['length'] <= snake['length']:
             smol_snake = True
     return low_on_life or smol_snake
 
