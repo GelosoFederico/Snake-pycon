@@ -147,6 +147,17 @@ def weight_by_min(new_pos, food_data):
             weight = distance
     return weight
 
+def weight_by_max(new_pos, food_data):
+    weight = 1
+    if food_data:
+        weight = distance_between(new_pos, food_data[0])
+    for food in food_data:
+        distance = distance_between(new_pos, food) 
+        if distance > weight:
+            weight = distance
+    return weight
+
+
 def weight_for_food(head, possible_moves, food_data, data):
     weighted_possible_moves = []
     for move in possible_moves:
@@ -158,7 +169,7 @@ def weight_for_food(head, possible_moves, food_data, data):
         if should_get_food_now(data):
             weight = weight_by_min(new_pos, food_data)
         else:
-            weight = weight_by_sum(new_pos, food_data)
+            weight = weight_by_max(new_pos, food_data)
 
         weighted_possible_moves.append({'move': move, 'weight': weight})
 
@@ -168,7 +179,7 @@ def weight_for_food(head, possible_moves, food_data, data):
     
 def should_get_food_now(data):
     # We make sure we are the biggest and we are not low on life
-    low_on_life = data['you']['health'] < 60
+    low_on_life = data['you']['health'] < 50
     smol_snake = False
     for snake in data['board']['snakes']:
         if data['you']['length'] < snake['length']:
@@ -196,18 +207,8 @@ def choose_move(data: dict) -> str:
         
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
 
-    # TODO: uncomment the lines below so you can see what this data looks like in your output!
-    # print(f"~~~ Turn: {data['turn']}  Game Mode: {data['game']['ruleset']['name']} ~~~")
-    # print(f"All board data this turn: {data}")
-    # print(f"My Battlesnakes head this turn is: {my_head}")
-    # print(f"My Battlesnakes body this turn is: {my_body}")
-
-    board_size = get_board_size(data['board'])
-    full_board_data = data['board']
-
     possible_moves = ["up", "down", "left", "right"]
-    possible_moves = remove_immediate_hazards(my_head, board, full_board_data, possible_moves)
-    possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, 6)
+    possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, 3)
     if len(possible_moves_next) == 0:
         possible_moves_next = possible_moves
 
