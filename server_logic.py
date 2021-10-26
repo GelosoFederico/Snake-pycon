@@ -207,9 +207,9 @@ def choose_move(data: dict) -> str:
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
 
     possible_moves = ["up", "down", "left", "right"]
-    if data["you"]['latency'] > 450:
+    if int(data["you"]['latency']) > 450:
         turns_ahead = 2
-    elif data["you"]['latency'] > 200:
+    elif int(data["you"]['latency']) > 200:
         turns_ahead = 3
     else:
         turns_ahead = 4
