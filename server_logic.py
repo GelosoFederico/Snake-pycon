@@ -181,7 +181,7 @@ def should_get_food_now(data):
     low_on_life = data['you']['health'] < 50
     smol_snake = False
     for snake in data['board']['snakes']:
-        if data['you']['length'] <= snake['length'] and snake['id'] != data['you']['id']:
+        if data['you']['length'] <= snake['length']+1 and snake['id'] != data['you']['id']:
             smol_snake = True
     return low_on_life or smol_snake
 
@@ -207,12 +207,13 @@ def choose_move(data: dict) -> str:
     my_head = data["you"]["head"]  # A dictionary of x/y coordinates like {"x": 0, "y": 0}
 
     possible_moves = ["up", "down", "left", "right"]
-    if int(data["you"]['latency']) > 450:
+    if int(data["you"]['latency']) > 400:
         turns_ahead = 2
-    elif int(data["you"]['latency']) > 200:
+    elif int(data["you"]['latency']) > 100:
         turns_ahead = 3
     else:
         turns_ahead = 4
+    print(turns_ahead)
     possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, turns_ahead)
     if len(possible_moves_next) == 0:
         possible_moves_next = possible_moves
