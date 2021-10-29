@@ -254,7 +254,7 @@ class MoveTest(unittest.TestCase):
         possible_moves = weight_for_food(head, possible_moves, food, get_full_test_json())
 
         assert possible_moves[0] == 'left'
-        assert possible_moves[3] == 'right'
+        assert possible_moves[3] == 'down'
 
     def test_remove_hazards_for_second_move(self):
         board = create_empty_board(get_full_test_json()['board'])

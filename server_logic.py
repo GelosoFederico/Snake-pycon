@@ -154,8 +154,22 @@ def weight_by_max(new_pos, food_data):
     for food in food_data:
         distance = distance_between(new_pos, food) 
         if distance > weight:
-            weight = distance
+            weight = -distance
     return weight
+
+def snake_can_move_to(snake, new_pos):
+    x_distance = abs(new_pos['x'] - snake['head']['x'])
+    y_distance = abs(new_pos['y'] - snake['head']['y'])
+    return x_distance <= 1 and y_distance <= 1 and (x_distance + y_distance) <= 1
+
+def weight_enemies(new_pos, data):
+    weight = 0
+    for snake in data['board']['snakes']:
+        if snake['id'] != data['you']['id'] and snake_can_move_to(snake, new_pos):
+            snake_is_bigger = (snake['length'] > data['you']['length'])
+            weight += 100 if snake_is_bigger else -50
+    return weight
+             
 
 
 def weight_for_food(head, possible_moves, food_data, data):
@@ -170,6 +184,7 @@ def weight_for_food(head, possible_moves, food_data, data):
             weight = weight_by_min(new_pos, food_data)
         else:
             weight = weight_by_max(new_pos, food_data)
+        weight += weight_enemies(new_pos, data)
 
         weighted_possible_moves.append({'move': move, 'weight': weight})
 
@@ -181,7 +196,7 @@ def should_get_food_now(data):
     low_on_life = data['you']['health'] < 50
     smol_snake = False
     for snake in data['board']['snakes']:
-        if data['you']['length'] <= snake['length'] and snake['id'] != data['you']['id']:
+        if data['you']['length'] <= snake['length'] +1 and snake['id'] != data['you']['id']:
             smol_snake = True
     return low_on_life or smol_snake
 
@@ -213,7 +228,7 @@ def choose_move(data: dict) -> str:
     elif latency > 100:
         turns_ahead = 3
     else:
-        turns_ahead = 4
+        turns_ahead = 3
     print(turns_ahead)
     possible_moves_next = remove_next_hazards(my_head, board, data, possible_moves, turns_ahead)
     if len(possible_moves_next) == 0:
