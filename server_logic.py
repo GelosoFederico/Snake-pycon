@@ -166,7 +166,7 @@ def weight_enemies(new_pos, data):
     weight = 0
     for snake in data['board']['snakes']:
         if snake['id'] != data['you']['id'] and snake_can_move_to(snake, new_pos):
-            snake_is_bigger = (snake['length'] > data['you']['length'])
+            snake_is_bigger = (snake['length'] >= data['you']['length'])
             weight += 100 if snake_is_bigger else -50
     return weight
              
